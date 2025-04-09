@@ -1,9 +1,15 @@
 package SSolid.Exemplo2;
 
-import java.io.*;
 import java.util.Scanner;
 
 public class ProcessadorEncomendas {
+    private CalculadoraFrete calculadoraFrete;
+    private EncomendaRepository repository;
+
+    public ProcessadorEncomendas(CalculadoraFrete calculadoraFrete, EncomendaRepository repository) {
+        this.calculadoraFrete = calculadoraFrete;
+        this.repository = repository;
+    }
 
     public void processar() {
         try (Scanner sc = new Scanner(System.in)) {
@@ -13,22 +19,17 @@ public class ProcessadorEncomendas {
             System.out.println("Digite o peso (em kg): ");
             double peso = sc.nextDouble();
 
-            double valorFrete = peso * 10;
+            // Cria objeto da encomenda
+            Encomenda encomenda = new Encomenda(idEncomenda, peso);
+            
+            // Calcula o frete
+            double valorFrete = calculadoraFrete.calcular(peso);
+            encomenda.setValorFrete(valorFrete);
             System.out.println("Valor do frete calculado: " + valorFrete);
 
-
-            salvarEmArquivo(idEncomenda, valorFrete);
+            // Salva a encomenda
+            repository.salvar(encomenda);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void salvarEmArquivo(String idEncomenda, double valorFrete) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("encomendas.txt", true))) {
-            bw.write("ID: " + idEncomenda + " - Frete: " + valorFrete);
-            bw.newLine();
-            System.out.println("Salvo no arquivo encomendas.txt");
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }
